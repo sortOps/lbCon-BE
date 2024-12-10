@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.AWS_SSH_PASSWORD }}
           port: 22
           script: |
-            cd strapi-demo
+            cd backend
             git pull
             npm ci
             npm build
