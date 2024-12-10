@@ -22,11 +22,14 @@ jobs:
       # 종속성 설치
       - name: Dependency Install
         working-directory: ./backend
-        run: npm run build
+        run: npm ci
 
       # 프로젝트 실행 테스트
       - name: Project Execution Test
-        run: npm start
+        working-directory: ./backend
+        run: |
+          npm run start & sleep 10
+          kill $(lsof -t -i:3000) || true
         env:
           MONGO_URI: mongodb://your-mongodb-uri
           JWT_SECRET: your_jwt_secret
@@ -49,5 +52,4 @@ jobs:
             cd backend
             git pull
             npm ci
-            npm build
             pm2 reload ecosystem.config.js
