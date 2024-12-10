@@ -1,0 +1,52 @@
+name: lbCon CICD Action
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 코드 저장소 체크아웃
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      # Node.js 환경 설정
+      - name: Node.js version setting
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 종속성 설치
+      - name: Dependency Install
+        run: npm run build
+
+      # 프로젝트 실행 테스트
+      - name: Project Execution Test
+        run: npm start
+        env: # 시크릿 교체
+          MONGO_URI=mongodb://your-mongodb-uri
+          JWT_SECRET=your_jwt_secret
+          REDIS_HOST=your-redis-host
+          REDIS_PORT=6379
+          OPENAI_API_KEY=your_openai_key
+          ENCRYPTION_KEY=your_encryption_key
+          PASSWORD_SALT=your_password_salt
+          NEXT_PUBLIC_API_URL=https://api.your-domain.com
+
+      # 프로젝트를 원격 서버에 SSH 배포
+      - name: Remote Access Deployment for pm2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.AWS_SSH_HOST }} 
+          username: ${{ secrets.AWS_SSH_USERNAME }}
+          password: ${{ secrets.AWS_SSH_PASSWORD }}
+          port: 22
+          script: |
+            cd strapi-demo
+            git pull
+            npm ci
+            npm build
+            pm2 reload ecosystem.config.js
