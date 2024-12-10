@@ -1,4 +1,4 @@
-# 설정파일 ecosystem.config.js
+// 설정파일 ecosystem.config.js
 
 module.exports = {
   apps: [
